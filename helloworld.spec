@@ -9,9 +9,14 @@ Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: openssl
 Requires: httpd
+Requires: mysql-server
 Requires: mysql
+Requires: mysql-devel
 Requires: php53
 Requires: mod_ssl
+Requires: openssl-devel
+Requires: php53-common
+Requires: php-pecl-apc
 
 %description
 

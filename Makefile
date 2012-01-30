@@ -22,6 +22,7 @@ clean :
 
 ${BUILD_DIRECTORY}/allegheny : ${BUILD_DIRECTORY}/rpmbuild/RPMS/i386/helloworld-1-1.i386.rpm
 	${SCP} $< allegheny:/tmp
+	# ${SSH} allegheny rpm -Uvh http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-4.noarch.rpm
 	${SSH} allegheny yum install -y --nogpgcheck /tmp/helloworld-1-1.i386.rpm
 	${TOUCH} $@
 
