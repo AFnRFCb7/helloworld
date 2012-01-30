@@ -1,0 +1,3 @@
+[submodule "vendor/bundles/OpenSky/Bundle/LdapBundle"]
+	path = vendor/bundles/OpenSky/Bundle/LdapBundle
+	url = http://github.com/opensky/LdapBundle.git
