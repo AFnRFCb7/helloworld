@@ -1,9 +1,11 @@
 
+CAT = /bin/cat
 CP = /bin/cp
 GUNZIP = /bin/gunzip
 GZIP = /bin/gzip
 MKDIR = /bin/mkdir
 OPENSSL = /usr/bin/openssl
+PHP = /usr/bin/php
 RPMBUILD = /usr/bin/rpmbuild
 SCP = /usr/bin/scp
 SED = /bin/sed
@@ -46,7 +48,7 @@ ${BUILD_DIRECTORY}/helloworld-1/% : %
 	${MKDIR} --verbose --parents $(@D)
 	${CP} --verbose $^ $@
 
-${BUILD_DIRECTORY}/helloworld-1.tar : ${BUILD_DIRECTORY}/helloworld-1/README ${BUILD_DIRECTORY}/helloworld-1/Makefile ${BUILD_DIRECTORY}/helloworld-1/helloworld.conf ${BUILD_DIRECTORY}/helloworld-1/helloworld.ini ${BUILD_DIRECTORY}/helloworld-1/parameters.ini
+${BUILD_DIRECTORY}/helloworld-1.tar : ${BUILD_DIRECTORY}/helloworld-1/README ${BUILD_DIRECTORY}/helloworld-1/Makefile ${BUILD_DIRECTORY}/helloworld-1/helloworld.conf ${BUILD_DIRECTORY}/helloworld-1/helloworld.ini ${BUILD_DIRECTORY}/helloworld-1/parameters.ini ${BUILD_DIRECTORY}/helloworld-1/deps
 	${MKDIR} --verbose --parents $(@D)
 	${TAR} --create --file $@ --verbose --directory ${BUILD_DIRECTORY} helloworld-1
 
@@ -66,6 +68,8 @@ ${BUILD_DIRECTORY}/Symfony_Standard_Vendors_2.0.9.tar : ${BUILD_DIRECTORY}/Symfo
 
 ${BUILD_DIRECTORY}/Symfony : ${BUILD_DIRECTORY}/Symfony_Standard_Vendors_2.0.9.tar
 	${TAR} --verbose --directory ${BUILD_DIRECTORY} --extract --file $<
+	${CAT} deps >> $@/deps
+	${PHP} ${BUILD_DIRECTORY}/Symfony/var/www/helloworld/bin/vendors install --reinstall
 
 install : ${DESTDIR}/etc/httpd/conf.d/helloworld.conf ${DESTDIR}/etc/httpd/conf/ssl/helloworld.key ${DESTDIR}/etc/httpd/conf/ssl/helloworld.crt ${DESTDIR}/var/www/helloworld ${DESTDIR}/var/www/helloworld/app/config/parameters.ini
 
