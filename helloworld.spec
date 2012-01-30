@@ -16,8 +16,10 @@ Requires: php53
 Requires: mod_ssl
 Requires: openssl-devel
 Requires: php53-common
-Requires: php-pecl-apc
 Requires: php53-pdo
+Requires: php53-xml
+Requires: php53-mbstring
+Requires: php53-intl
 
 %description
 

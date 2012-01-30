@@ -46,7 +46,7 @@ ${BUILD_DIRECTORY}/helloworld-1/% : %
 	${MKDIR} --verbose --parents $(@D)
 	${CP} --verbose $^ $@
 
-${BUILD_DIRECTORY}/helloworld-1.tar : ${BUILD_DIRECTORY}/helloworld-1/README ${BUILD_DIRECTORY}/helloworld-1/Makefile ${BUILD_DIRECTORY}/helloworld-1/helloworld.conf ${BUILD_DIRECTORY}/helloworld.ini
+${BUILD_DIRECTORY}/helloworld-1.tar : ${BUILD_DIRECTORY}/helloworld-1/README ${BUILD_DIRECTORY}/helloworld-1/Makefile ${BUILD_DIRECTORY}/helloworld-1/helloworld.conf ${BUILD_DIRECTORY}/helloworld-1/helloworld.ini
 	${MKDIR} --verbose --parents $(@D)
 	${TAR} --create --file $@ --verbose --directory ${BUILD_DIRECTORY} helloworld-1
 
