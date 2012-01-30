@@ -10,6 +10,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: openssl
 BuildRequires: git
 Requires: httpd
+Requires: mod_authz_ldap
 Requires: mysql-server
 Requires: mysql
 Requires: mysql-devel
@@ -39,8 +40,13 @@ rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=${RPM_BUILD_ROOT}
 
 %post
-pecl install pdo
-pecl install pdo_mysql
+/usr/bin/php /var/www/helloworld/app/console doctrine:schema:update --force
+/usr/bin/php /var/www/helloworld/app/console assets:install web
+/usr/bin/php /var/www/helloworld/app/console cache:clear
+/usr/bin/php /var/www/helloworld/app/console fos:user:create admin admin@example.com password --super-admin
+/usr/bin/php /var/www/helloworld/app/console fos:user:create testuser test@example.com password
+/usr/bin/pecl install pdo
+/usr/bin/pecl install pdo_mysql
 service httpd start
 service mysqld start
 chkconfig httpd on
@@ -57,6 +63,7 @@ rm -rf $RPM_BUILD_ROOT
 /etc/httpd/conf.d/helloworld.conf
 %dir /var/www/helloworld
 %dir /var/www/helloworld/app
+/var/www/helloworld/app/.htaccess
 /var/www/helloworld/app/AppCache.php
 /var/www/helloworld/app/AppKernel.php
 /var/www/helloworld/app/autoload.php
@@ -66,17 +73,19 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/helloworld/app/console
 /var/www/helloworld/app/phpunit.xml.dist
 /var/www/helloworld/app/Resources
-/var/www/bin
-/var/www/deps
-/var/www/deps.lock
-/var/www/LICENSE
-/var/www/README.md
-/var/www/src
-/var/wwwvendor
-/var/www/web
-
-%attr(0755,apache,apache) /var/www/helloworld/app
-%attr(0755,apache,apache) /var/www/helloworld/logs
+%dir /var/www/helloworld/app/Application
+%dir /var/www/helloworld/app/Application/Sonata
+/var/www/helloworld/app/Application/Sonata/UserBundle
+/var/www/helloworld/bin
+/var/www/helloworld/deps
+/var/www/helloworld/deps.lock
+/var/www/helloworld/LICENSE
+/var/www/helloworld/README.md
+/var/www/helloworld/src
+/var/www/helloworld/vendor
+/var/www/helloworld/web
+%attr(0755,apache,apache) /var/www/helloworld/app/cache
+%attr(0755,apache,apache) /var/www/helloworld/app/logs
 %doc
 
 

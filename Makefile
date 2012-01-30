@@ -1,6 +1,7 @@
 
 CAT = /bin/cat
 CP = /bin/cp
+GIT = /usr/bin/git
 GUNZIP = /bin/gunzip
 GZIP = /bin/gzip
 MKDIR = /bin/mkdir
@@ -17,7 +18,8 @@ WGET = /usr/bin/wget
 BUILD_DIRECTORY = build
 DESTDIR = install
 
-all : helloworld.conf ${BUILD_DIRECTORY}/helloworld.key ${BUILD_DIRECTORY}/helloworld.crt ${BUILD_DIRECTORY}/Symfony
+
+all : helloworld.conf ${BUILD_DIRECTORY}/helloworld.key ${BUILD_DIRECTORY}/helloworld.crt
 
 clean :
 	${RM} --verbose --recursive --force build
@@ -46,15 +48,15 @@ ${BUILD_DIRECTORY}/rpmmacros : rpmmacros
 
 ${BUILD_DIRECTORY}/helloworld-1/% : %
 	${MKDIR} --verbose --parents $(@D)
-	${CP} --verbose $^ $@
+	${CP} --verbose --recursive $^ $@
 
-${BUILD_DIRECTORY}/helloworld-1.tar : ${BUILD_DIRECTORY}/helloworld-1/README ${BUILD_DIRECTORY}/helloworld-1/Makefile ${BUILD_DIRECTORY}/helloworld-1/helloworld.conf ${BUILD_DIRECTORY}/helloworld-1/helloworld.ini ${BUILD_DIRECTORY}/helloworld-1/parameters.ini ${BUILD_DIRECTORY}/helloworld-1/deps
+${BUILD_DIRECTORY}/helloworld-1.tar : ${BUILD_DIRECTORY}/helloworld-1/README ${BUILD_DIRECTORY}/helloworld-1/Makefile ${BUILD_DIRECTORY}/helloworld-1/helloworld.conf ${BUILD_DIRECTORY}/helloworld-1/helloworld.ini ${BUILD_DIRECTORY}/helloworld-1/helloworld
 	${MKDIR} --verbose --parents $(@D)
 	${TAR} --create --file $@ --verbose --directory ${BUILD_DIRECTORY} helloworld-1
 
 ${BUILD_DIRECTORY}/rpmbuild/SOURCES/helloworld-1.tar.gz : ${BUILD_DIRECTORY}/helloworld-1.tar
 	${MKDIR} --verbose --parents $(@D)
-	${GZIP} -9 --to-stdout --verbose $< > $@
+	${GZIP} -9 --to-stdout $< > $@
 
 ${BUILD_DIRECTORY}/helloworld.key ${BUILD_DIRECTORY}/helloworld.crt :
 	${MKDIR} --verbose --parents $(@D)
@@ -68,10 +70,13 @@ ${BUILD_DIRECTORY}/Symfony_Standard_Vendors_2.0.9.tar : ${BUILD_DIRECTORY}/Symfo
 
 ${BUILD_DIRECTORY}/Symfony : ${BUILD_DIRECTORY}/Symfony_Standard_Vendors_2.0.9.tar
 	${TAR} --verbose --directory ${BUILD_DIRECTORY} --extract --file $<
-	${CAT} deps >> $@/deps
-	${PHP} ${BUILD_DIRECTORY}/Symfony/var/www/helloworld/bin/vendors install --reinstall
 
-install : ${DESTDIR}/etc/httpd/conf.d/helloworld.conf ${DESTDIR}/etc/httpd/conf/ssl/helloworld.key ${DESTDIR}/etc/httpd/conf/ssl/helloworld.crt ${DESTDIR}/var/www/helloworld ${DESTDIR}/var/www/helloworld/app/config/parameters.ini
+helloworld-directory : ${BUILD_DIRECTORY}/Symfony
+	${CP} --verbose --recursive $< $@
+	${PHP} $@/bin/vendors install --reinstall
+	${PHP} $@/app/console sonata:easy-extends:generate SonataUserBundle
+
+install : ${DESTDIR}/etc/httpd/conf.d/helloworld.conf ${DESTDIR}/etc/httpd/conf/ssl/helloworld.key ${DESTDIR}/etc/httpd/conf/ssl/helloworld.crt ${DESTDIR}/var/www/helloworld
 
 ${DESTDIR}/etc/php.d/helloworld.ini : helloworld.ini
 	${MKDIR} --verbose --parents $(@D)
@@ -85,7 +90,7 @@ ${DESTDIR}/etc/httpd/conf/ssl/helloworld.% : ${BUILD_DIRECTORY}/helloworld.%
 	${MKDIR} --verbose --parents $(@D)
 	${CP} --verbose $< $@
 
-${DESTDIR}/var/www/helloworld : ${BUILD_DIRECTORY}/Symfony
+${DESTDIR}/var/www/helloworld : helloworld
 	${MKDIR} --verbose --parents $(@D)
 	${CP} --recursive --verbose $< $@
 
