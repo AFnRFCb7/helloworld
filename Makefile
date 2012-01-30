@@ -46,7 +46,7 @@ ${BUILD_DIRECTORY}/helloworld-1/% : %
 	${MKDIR} --verbose --parents $(@D)
 	${CP} --verbose $^ $@
 
-${BUILD_DIRECTORY}/helloworld-1.tar : ${BUILD_DIRECTORY}/helloworld-1/README ${BUILD_DIRECTORY}/helloworld-1/Makefile ${BUILD_DIRECTORY}/helloworld-1/helloworld.conf
+${BUILD_DIRECTORY}/helloworld-1.tar : ${BUILD_DIRECTORY}/helloworld-1/README ${BUILD_DIRECTORY}/helloworld-1/Makefile ${BUILD_DIRECTORY}/helloworld-1/helloworld.conf ${BUILD_DIRECTORY}/helloworld.ini
 	${MKDIR} --verbose --parents $(@D)
 	${TAR} --create --file $@ --verbose --directory ${BUILD_DIRECTORY} helloworld-1
 
@@ -68,6 +68,10 @@ ${BUILD_DIRECTORY}/Symfony : ${BUILD_DIRECTORY}/Symfony_Standard_Vendors_2.0.9.t
 	${TAR} --verbose --directory ${BUILD_DIRECTORY} --extract --file $<
 
 install : ${DESTDIR}/etc/httpd/conf.d/helloworld.conf ${DESTDIR}/etc/httpd/conf/ssl/helloworld.key ${DESTDIR}/etc/httpd/conf/ssl/helloworld.crt ${DESTDIR}/var/www/helloworld
+
+${DESTDIR}/etc/php.d/helloworld.ini : helloworld.ini
+	${MKDIR} --verbose --parents $(@D)
+	${CP} --verbose $< $@
 
 ${DESTDIR}/etc/httpd/conf.d/helloworld.conf : helloworld.conf
 	${MKDIR} --verbose --parents $(@D)
