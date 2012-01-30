@@ -37,7 +37,13 @@ make
 
 %install
 rm -rf $RPM_BUILD_ROOT
+mkdir --parents ${RPM_BUILD_ROOT}/usr/local/bin
+touch ${RPM_BUILD_ROOT}/usr/local/bin/php
 make install DESTDIR=${RPM_BUILD_ROOT}
+
+%pre
+rm --force /usr/local/bin/php
+ln --symbolic --force /usr/bin/php /usr/local/bin/php
 
 %post
 /usr/bin/php /var/www/helloworld/app/console doctrine:schema:update --force
@@ -86,6 +92,7 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/helloworld/web
 %attr(0755,apache,apache) /var/www/helloworld/app/cache
 %attr(0755,apache,apache) /var/www/helloworld/app/logs
+%attr(0555,root,root) /usr/local/bin/php
 %doc
 
 
