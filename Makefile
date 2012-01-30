@@ -46,7 +46,7 @@ ${BUILD_DIRECTORY}/helloworld-1/% : %
 	${MKDIR} --verbose --parents $(@D)
 	${CP} --verbose $^ $@
 
-${BUILD_DIRECTORY}/helloworld-1.tar : ${BUILD_DIRECTORY}/helloworld-1/README ${BUILD_DIRECTORY}/helloworld-1/Makefile ${BUILD_DIRECTORY}/helloworld-1/helloworld.conf ${BUILD_DIRECTORY}/helloworld-1/helloworld.ini
+${BUILD_DIRECTORY}/helloworld-1.tar : ${BUILD_DIRECTORY}/helloworld-1/README ${BUILD_DIRECTORY}/helloworld-1/Makefile ${BUILD_DIRECTORY}/helloworld-1/helloworld.conf ${BUILD_DIRECTORY}/helloworld-1/helloworld.ini ${BUILD_DIRECTORY}/helloworld-1/parameters.ini
 	${MKDIR} --verbose --parents $(@D)
 	${TAR} --create --file $@ --verbose --directory ${BUILD_DIRECTORY} helloworld-1
 
@@ -67,7 +67,7 @@ ${BUILD_DIRECTORY}/Symfony_Standard_Vendors_2.0.9.tar : ${BUILD_DIRECTORY}/Symfo
 ${BUILD_DIRECTORY}/Symfony : ${BUILD_DIRECTORY}/Symfony_Standard_Vendors_2.0.9.tar
 	${TAR} --verbose --directory ${BUILD_DIRECTORY} --extract --file $<
 
-install : ${DESTDIR}/etc/httpd/conf.d/helloworld.conf ${DESTDIR}/etc/httpd/conf/ssl/helloworld.key ${DESTDIR}/etc/httpd/conf/ssl/helloworld.crt ${DESTDIR}/var/www/helloworld
+install : ${DESTDIR}/etc/httpd/conf.d/helloworld.conf ${DESTDIR}/etc/httpd/conf/ssl/helloworld.key ${DESTDIR}/etc/httpd/conf/ssl/helloworld.crt ${DESTDIR}/var/www/helloworld ${DESTDIR}/var/www/helloworld/app/config/parameters.ini
 
 ${DESTDIR}/etc/php.d/helloworld.ini : helloworld.ini
 	${MKDIR} --verbose --parents $(@D)
@@ -84,3 +84,7 @@ ${DESTDIR}/etc/httpd/conf/ssl/helloworld.% : ${BUILD_DIRECTORY}/helloworld.%
 ${DESTDIR}/var/www/helloworld : ${BUILD_DIRECTORY}/Symfony
 	${MKDIR} --verbose --parents $(@D)
 	${CP} --recursive --verbose $< $@
+
+${DESTDIR}/var/www/helloworld/app/config/parameters.ini : parameters.ini
+	${MKDIR} --verbose --parents $(@D)
+	${CP} --verbose $< $@
