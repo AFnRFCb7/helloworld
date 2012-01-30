@@ -17,6 +17,7 @@ Requires: mod_ssl
 Requires: openssl-devel
 Requires: php53-common
 Requires: php-pecl-apc
+Requires: php53-pdo
 
 %description
 
