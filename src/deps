@@ -1,0 +1,8 @@
+
+[BeSimpleSsoAuthBundle]
+    git=https://github.com/BeSimple/BeSimpleSsoAuthBundle.git
+    target=/bundles/BeSimple/SsoAuthBundle
+
+[Buzz]
+    git=https://github.com/kriswallsmith/Buzz.git
+    target=buzz
