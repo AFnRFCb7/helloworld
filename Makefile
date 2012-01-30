@@ -1,0 +1,83 @@
+
+CP = /bin/cp
+GUNZIP = /bin/gunzip
+GZIP = /bin/gzip
+MKDIR = /bin/mkdir
+OPENSSL = /usr/bin/openssl
+RPMBUILD = /usr/bin/rpmbuild
+SED = /bin/sed
+TAR = /bin/tar
+TOUCH = /bin/touch
+WGET = /usr/bin/wget
+
+BUILD_DIRECTORY = build
+DESTDIR = install
+
+all : helloworld.conf ${BUILD_DIRECTORY}/helloworld.key ${BUILD_DIRECTORY}/helloworld.crt ${BUILD_DIRECTORY}/Symfony
+
+clean :
+	${RM} --verbose --recursive --force build
+
+${BUILD_DIRECTORY}/rpm : ${BUILD_DIRECTORY}/rpmbuild/RPMS/i386/helloworld-1-1.i386.rpm
+	${TOUCH} $@
+
+${BUILD_DIRECTORY}/rpmbuild/RPMS/i386/helloworld-1-1.i386.rpm : ${BUILD_DIRECTORY}/rpmbuild/SPECS/helloworld-1.spec ${BUILD_DIRECTORY}/rpmbuild/SOURCES/helloworld-1.tar.gz ${BUILD_DIRECTORY}/rpmrc
+	${MKDIR} --parents $(@D)
+	${MKDIR} --parents ${BUILD_DIRECTORY}/rpmbuild/SRPMS
+	${MKDIR} --parents ${BUILD_DIRECTORY}/rpmbuild/BUILD
+	${RPMBUILD} --verbose --rcfile ${BUILD_DIRECTORY}/rpmrc -ba ${BUILD_DIRECTORY}/rpmbuild/SPECS/helloworld-1.spec
+
+${BUILD_DIRECTORY}/rpmbuild/SPECS/helloworld-1.spec : helloworld.spec
+	${MKDIR} --verbose --parents $(@D)
+	${CP} --verbose $< $@
+
+${BUILD_DIRECTORY}/rpmrc : rpmrc ${BUILD_DIRECTORY}/rpmmacros
+	${SED} -e "s#RPMMACROS#${BUILD_DIRECTORY}/rpmmacros#" -e "w$@" $<
+
+${BUILD_DIRECTORY}/rpmmacros : rpmmacros
+	${SED} -e "s#%{_usrsrc}/redhat#${PWD}/${BUILD_DIRECTORY}/rpmbuild#" $< > $@
+
+${BUILD_DIRECTORY}/helloworld-1/% : %
+	${MKDIR} --verbose --parents $(@D)
+	${CP} --verbose $^ $@
+
+${BUILD_DIRECTORY}/helloworld-1.tar : ${BUILD_DIRECTORY}/helloworld-1/README ${BUILD_DIRECTORY}/helloworld-1/Makefile ${BUILD_DIRECTORY}/helloworld-1/helloworld.conf
+	${MKDIR} --verbose --parents $(@D)
+	${TAR} --create --file $@ --verbose --directory ${BUILD_DIRECTORY} helloworld-1
+
+${BUILD_DIRECTORY}/rpmbuild/SOURCES/helloworld-1.tar.gz : ${BUILD_DIRECTORY}/helloworld-1.tar
+	${MKDIR} --verbose --parents $(@D)
+	${GZIP} -9 --to-stdout --verbose $< > $@
+
+${BUILD_DIRECTORY}/helloworld.key ${BUILD_DIRECTORY}/helloworld.crt :
+	${MKDIR} --verbose --parents $(@D)
+	${OPENSSL} req -new -x509 -days 365 -sha1 -newkey rsa:1024 -nodes -keyout ${BUILD_DIRECTORY}/helloworld.key -out ${BUILD_DIRECTORY}/helloworld.crt -subj '/O=Company/OU=Department/CN=www.example.com'
+
+${BUILD_DIRECTORY}/Symfony_Standard_Vendors_2.0.9.tgz :
+	${WGET} --verbose --directory-prefix=${BUILD_DIRECTORY} http://symfony.com/download?v=Symfony_Standard_Vendors_2.0.9.tgz
+
+${BUILD_DIRECTORY}/Symfony_Standard_Vendors_2.0.9.tar : ${BUILD_DIRECTORY}/Symfony_Standard_Vendors_2.0.9.tgz
+	${GUNZIP} --to-stdout --verbose $< > $@
+
+${BUILD_DIRECTORY}/Symfony : ${BUILD_DIRECTORY}/Symfony_Standard_Vendors_2.0.9.tar
+	${TAR} --verbose --directory ${BUILD_DIRECTORY} --extract --file $<
+
+install : ${DESTDIR}/etc/httpd/conf.d/helloworld.conf ${DESTDIR}/etc/httpd/conf/ssl/helloworld.key ${DESTDIR}/etc/httpd/conf/ssl/helloworld.crt ${DESTDIR}/var/www/helloworld
+
+${DESTDIR}/etc/httpd/conf.d/helloworld.conf : helloworld.conf
+	${MKDIR} --parents $(@D)
+	${CP} --verbose $< $@
+
+${DESTDIR}/etc/httpd/conf/ssl/helloworld.% : ${BUILD_DIRECTORY}/helloworld.%
+	${MKDIR} --parents $(@D)
+	${CP} --verbose $< $@
+
+${DESTDIR}/var/www/helloworld : ${BUILD_DIRECTORY}/Symfony
+	${MKDIR} --parents $(@D)
+	echo hi
+	echo ${PWD}
+	echo $<
+	ls ${BUILD_DIRECTORY}
+	ls ${BUILD_DIRECTORY}/Symfony
+	${CP} --recursive --verbose $< $@
+	echo bye
