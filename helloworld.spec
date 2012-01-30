@@ -11,7 +11,7 @@ BuildRequires: openssl
 Requires: httpd
 Requires: mysql
 Requires: php53
-Requires: mod-ssl
+Requires: mod_ssl
 
 %description
 
@@ -24,6 +24,12 @@ make
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=${RPM_BUILD_ROOT}
+
+%post
+service httpd start
+service mysqld start
+chkconfig httpd on
+chkconfig mysqld on
 
 %clean
 rm -rf $RPM_BUILD_ROOT

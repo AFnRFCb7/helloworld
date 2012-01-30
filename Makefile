@@ -5,7 +5,9 @@ GZIP = /bin/gzip
 MKDIR = /bin/mkdir
 OPENSSL = /usr/bin/openssl
 RPMBUILD = /usr/bin/rpmbuild
+SCP = /usr/bin/scp
 SED = /bin/sed
+SSH = /usr/bin/ssh
 TAR = /bin/tar
 TOUCH = /bin/touch
 WGET = /usr/bin/wget
@@ -18,7 +20,9 @@ all : helloworld.conf ${BUILD_DIRECTORY}/helloworld.key ${BUILD_DIRECTORY}/hello
 clean :
 	${RM} --verbose --recursive --force build
 
-${BUILD_DIRECTORY}/rpm : ${BUILD_DIRECTORY}/rpmbuild/RPMS/i386/helloworld-1-1.i386.rpm
+${BUILD_DIRECTORY}/allegheny : ${BUILD_DIRECTORY}/rpmbuild/RPMS/i386/helloworld-1-1.i386.rpm
+	${SCP} $< allegheny:/tmp
+	${SSH} allegheny yum install -y --nogpgcheck /tmp/helloworld-1-1.i386.rpm
 	${TOUCH} $@
 
 ${BUILD_DIRECTORY}/rpmbuild/RPMS/i386/helloworld-1-1.i386.rpm : ${BUILD_DIRECTORY}/rpmbuild/SPECS/helloworld-1.spec ${BUILD_DIRECTORY}/rpmbuild/SOURCES/helloworld-1.tar.gz ${BUILD_DIRECTORY}/rpmrc
@@ -65,19 +69,13 @@ ${BUILD_DIRECTORY}/Symfony : ${BUILD_DIRECTORY}/Symfony_Standard_Vendors_2.0.9.t
 install : ${DESTDIR}/etc/httpd/conf.d/helloworld.conf ${DESTDIR}/etc/httpd/conf/ssl/helloworld.key ${DESTDIR}/etc/httpd/conf/ssl/helloworld.crt ${DESTDIR}/var/www/helloworld
 
 ${DESTDIR}/etc/httpd/conf.d/helloworld.conf : helloworld.conf
-	${MKDIR} --parents $(@D)
+	${MKDIR} --verbose --parents $(@D)
 	${CP} --verbose $< $@
 
 ${DESTDIR}/etc/httpd/conf/ssl/helloworld.% : ${BUILD_DIRECTORY}/helloworld.%
-	${MKDIR} --parents $(@D)
+	${MKDIR} --verbose --parents $(@D)
 	${CP} --verbose $< $@
 
 ${DESTDIR}/var/www/helloworld : ${BUILD_DIRECTORY}/Symfony
-	${MKDIR} --parents $(@D)
-	echo hi
-	echo ${PWD}
-	echo $<
-	ls ${BUILD_DIRECTORY}
-	ls ${BUILD_DIRECTORY}/Symfony
+	${MKDIR} --verbose --parents $(@D)
 	${CP} --recursive --verbose $< $@
-	echo bye
